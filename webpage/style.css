@@ -1,0 +1,376 @@
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f0f0f0; /* light grey page background */
+  color: #111111;             /* near-black text */
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  line-height: 1.8;
+}
+
+/* ── Read Progress Bar ────────────────────────────────────── */
+.progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #eeeeee;
+      z-index: 999;
+    }
+  .progress-bar {
+      height: 4px;
+      background: #963737;
+      width: 0%;
+    }
+
+/* ── Hero Section ─────────────────────────────────────────── */
+.hero {
+  width: 100%;
+  aspect-ratio: 1920 / 600;
+  overflow: hidden;
+}
+
+.hero video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 480px) {
+  .hero {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+
+/* ── Article Container ────────────────────────────────────── */
+.article-container {
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+/* ── Article Header ───────────────────────────────────────── */
+.article-header {
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.article-header h1 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  color: #111111;
+}
+
+.byline {
+  text-align: center;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555555;
+  margin-bottom: 3rem;
+}
+
+/* Deck / standfirst */
+.deck {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: #333333;
+  max-width: 550px;
+  margin: 1rem auto;
+  text-align: center;
+}
+
+/* ── Section Headings ─────────────────────────────────────── */
+.article-body {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #111111;
+}
+
+h3 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #111111;
+}
+
+/* ── Body Text ────────────────────────────────────────────── */
+p {
+  font-size: 20px;
+  line-height: 1.8;
+  margin-bottom: 1.4rem;
+}
+
+#anonymous-note {
+  font-size: 1rem;
+  color: #555555;
+  line-height: 1.5;
+  font-style: italic;
+  margin-top: 2rem;
+}
+
+/* ── Links ────────────────────────────────────────────────── */
+a {
+  color: #111111;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+a:hover,
+a:focus {
+  color: #963737;
+}
+
+/* ── Multimedia / Image Placeholders ─────────────────────── */
+.media-placeholder {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  background-color: #e0e0e0;
+  border: 2px dashed #7c00c8;
+  border-radius: 4px;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  /* Bold purple text as specified */
+  font-weight: 700;
+  color: #7c00c8;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+figure.interviewee-photo-fig {
+  width: 40%;
+  margin: 2rem auto;
+}
+
+figure.interviewee-photo-fig img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+figcaption {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #555555;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Mobile: let photo go full-width on small screens */
+
+@media (max-width: 480px) {
+  figure.interviewee-photo-fig {
+    width: 100%;
+  }
+}
+
+/* ── Instagram Video Embed ───────────────────────────────── */
+/* Initial state: invisible and shifted 30px up (for a drop-down effect) */
+.video-embed-fig {
+  opacity: 0;
+  transform: translateY(-30px); /* Use positive 30px for a slide-up instead */
+  transition: opacity 1.2s ease-out, transform 1s ease-out;
+  margin: 2rem auto;
+}
+
+/* Active state: visible and in its final position */
+.video-embed-fig.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Center the wrapper for the Instagram embed */
+.video-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 400px; /* Prevents layout jump while Instagram loads */
+}
+
+@media (max-width: 480px) {
+  figure.video-embed-fig {
+    width: 100%;
+  }
+}
+
+#infographic-title {
+  /* 1. Match the breakout width of the graphic */
+  width: 100vw;
+  max-width: 1200px; 
+
+  /* 2. Match the positioning logic of the graphic */
+  margin-left: 40%;
+  transform: translateX(-40%);
+
+  /* 3. Ensure the text itself stays left-aligned within that space */
+  text-align: left;
+  margin-top: 2rem;
+}
+
+.infographic-full {
+  display: block;
+  width: 100vw;           /* Fallback for older browsers */
+  max-width: 1200px;      /* Set your "hard number" limit here (e.g., 1200px or 1840px) */
+  /* vw forces the image to center itself relative to the screen, 
+     not the article container */
+  margin-left: 40%;
+  transform: translateX(-40%);
+  
+  height: auto;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+
+/* ── Data Callout Block ───────────────────────────────────── */
+.data-callout {
+  background-color: #e8e8e8;
+  border-left: 5px solid #111111;
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0;
+}
+
+.data-headline {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Inline data note (italic, smaller) */
+.data-note {
+  font-size: 0.82rem;
+  color: #555555;
+  line-height: 1.5;
+}
+
+
+
+/* ── Mata Chan Local Video ───────────────────────────────── */
+figure.video-embed-fig-mata {
+  /* Match the breakout width of the graphic */
+  width: 100vw;
+  max-width: 1000px;
+  margin: 2rem auto;
+  left: 50%;
+  transform: translateX(-50%);
+  position: relative;
+}
+
+.video-wrapper-mata video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+@media (max-width: 480px) {
+  figure.video-embed-fig-mata {
+    width: 100%;
+  }
+}
+
+/* ── Article Footer ───────────────────────────────────────── */
+.article-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #cccccc;
+}
+
+.article-footer p {
+  font-size: 0.9rem;
+  color: #666666;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================================
+   RESPONSIVE — Mobile-friendly adjustments
+   ============================================================ */
+
+/* Tablet & smaller */
+@media (max-width: 800px) {
+  html {
+    font-size: 17px;
+  }
+
+  .article-header h1 {
+    font-size: 2rem;
+  }
+
+  .hero {
+    min-height: 320px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  html {
+    font-size: 16px;
+  }
+
+  .article-container {
+    padding: 2rem 1.1rem 3rem;
+  }
+
+  .article-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .deck {
+    font-size: 1rem;
+  }
+
+  .hero {
+    min-height: 220px;
+  }
+
+  .media-placeholder {
+    min-height: 120px;
+    font-size: 0.82rem;
+  }
+}
