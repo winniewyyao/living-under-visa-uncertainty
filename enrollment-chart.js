@@ -141,7 +141,7 @@
 
   header.append("p")
     .attr("class", "chart-title")
-    .text("New international student enrollment drops 7% in 2025");
+    .text("New International Student Enrollment Dropped 7% in 2025");
 
   header.append("p")
     .attr("class", "chart-subtitle")

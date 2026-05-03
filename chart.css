@@ -11,7 +11,7 @@
   max-width: 1000px;
   left: 50%;
   transform: translateX(-50%);
-  margin: 2rem 0;
+  margin: 3rem 0;
 }
 
 .chart-container svg {

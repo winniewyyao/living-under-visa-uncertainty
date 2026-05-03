@@ -92,7 +92,7 @@ body {
   font-style: italic;
   line-height: 1.65;
   color: #333333;
-  max-width: 550px;
+  max-width: 480px;
   margin: 1rem auto;
   text-align: center;
 }
@@ -129,14 +129,6 @@ p {
   margin-bottom: 1.4rem;
 }
 
-#anonymous-note {
-  font-size: 1rem;
-  color: #555555;
-  line-height: 1.5;
-  font-style: italic;
-  margin-top: 2rem;
-}
-
 /* ── Links ────────────────────────────────────────────────── */
 a {
   color: #111111;
@@ -147,6 +139,13 @@ a {
 a:hover,
 a:focus {
   color: #963737;
+}
+
+#anonymous-note {
+  font-size: 1rem;
+  font-style: italic;
+  color: #555555;
+  margin: 1rem 0;
 }
 
 /* ── Multimedia / Image Placeholders ─────────────────────── */
@@ -169,6 +168,57 @@ a:focus {
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.side-by-side-layout {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;           /* Increased gap for the wider layout */
+  
+    /* 1. Breakout Logic */
+  width: 100vw;        /* Set width to viewport width */
+  max-width: 950px;   /* Your "hard number" for the wider width */
+  margin-left: 70%;    /* Move to center of screen */
+  transform: translateX(-70%); /* Pull back by half of its own width */
+  
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+/* Ensure the image doesn't shrink too much */
+.side-by-side-layout .anonymous-illustration {
+  flex: 0 0 320px;     /* Fixed base width of 400px, won't grow/shrink */
+  margin: 0;
+}
+
+/* Let the paragraph fill the remaining wider space */
+.side-by-side-layout p {
+  flex: 1;
+  margin: 0;           /* Remove margin to keep it level with image */
+  text-align: left;
+}
+
+.anonymous-illustration img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 2. Responsive: On mobile, go back to normal container width */
+@media (max-width: 1050px) {
+  .side-by-side-layout {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    transform: none;
+    flex-direction: column; /* Stack on mobile */
+    gap: 1.5rem;
+  }
+  
+  .side-by-side-layout .anonymous-illustration {
+    flex: none;
+    width: 100%;
+  }
 }
 
 figure.interviewee-photo-fig {
@@ -369,8 +419,4 @@ figure.video-embed-fig-mata {
     min-height: 220px;
   }
 
-  .media-placeholder {
-    min-height: 120px;
-    font-size: 0.82rem;
-  }
 }

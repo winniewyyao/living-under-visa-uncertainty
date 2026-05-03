@@ -128,11 +128,11 @@
 
   header.append("p")
     .attr("class", "map-title")
-    .text("International Students Contributed near $ 43 billion in 2024-2025");
+    .text("International Students Contributed near $ 43 Billion in 2024-2025 Across the U.S.");
 
   header.append("p")
     .attr("class", "map-subtitle")
-    .text("International Students Economic Contribution to the U.S., by State");
+    .text("International Students' Economic Contribution includes spending on tuition, food, transportation and other expenses.");
 
   /* ── 3. HARDCODED DATA ───────────────────────────────────── */
   const rawData = {
@@ -321,8 +321,5 @@
 
   notes.append("p")
     .html(`<strong>Source:</strong> <a href="https://www.nafsa.org/policy-and-advocacy/policy-resources/nafsa-international-student-economic-value-tool-v2" target="_blank" rel="noopener">Association of International Educators (NAFSA)</a> ,based on data from U.S. Department of Education, Petersons Data, Common Data Set, U.S. Department of Commerce, and the Open Doors Report.`);
-
-  notes.append("p")
-    .text("Note: Economic contribution includes spending on tuition, housing, food, transportation, health insurance, support for dependents, and other expenses. Data reflects the 2024–25 academic year.");
 
 })();

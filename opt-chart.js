@@ -95,9 +95,10 @@
   const data = [
     { year: 2021, months: 3   },
     { year: 2022, months: 4.7 },
-    { year: 2023, months: 2.8 },
+    { year: 2023, months: 3.2 },
     { year: 2024, months: 3.1 },
-    { year: 2025, months: 4.1 },
+    { year: 2025, months: 2.8 },
+    { year: 2026, months: 4.1 },
   ];
 
   /* ── 3. DIMENSIONS & MARGINS ─────────────────────────────── */
@@ -112,13 +113,13 @@
     .append("svg")
       .attr("viewBox", `0 0 ${totalWidth} ${totalHeight}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
-      .attr("aria-label", "Line chart: OPT processing times 2021–2025")
+      .attr("aria-label", "Line chart: OPT processing times 2021–2026")
     .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
   /* ── 5. SCALES ───────────────────────────────────────────── */
   const xScale = d3.scaleLinear()
-    .domain([2021, 2025])
+    .domain([2021, 2026])
     .range([0, width]);
 
   const yMin = Math.floor(d3.min(data, d => d.months));
@@ -130,7 +131,7 @@
 
   /* ── 6. AXES ─────────────────────────────────────────────── */
   const xAxis = d3.axisBottom(xScale)
-    .tickValues([2021, 2022, 2023, 2024, 2025])
+    .tickValues([2021, 2022, 2023, 2024, 2025, 2026])
     .tickFormat(d3.format("d"))
     .tickSize(-height)
     .tickPadding(12);
@@ -167,15 +168,15 @@
     .y(d => yScale(d.months))
     .curve(d3.curveMonotoneX);
 
-  // Black baseline: 2021–2024
+  // Black baseline: 2021–2025
   svg.append("path")
-    .datum(data.filter(d => d.year <= 2024))
+    .datum(data.filter(d => d.year <= 2025))
     .attr("class", "line line-baseline")
     .attr("d", lineGen);
 
-  // Red highlight: 2024–2025
+  // Red highlight: 2025–2026
   svg.append("path")
-    .datum(data.filter(d => d.year >= 2024))
+    .datum(data.filter(d => d.year >= 2025))
     .attr("class", "line line-highlight")
     .attr("d", lineGen);
 
@@ -184,14 +185,14 @@
     .data(data)
     .enter()
     .append("circle")
-      .attr("class", d => d.year >= 2024 ? "dot dot-highlight" : "dot dot-baseline")
+      .attr("class", d => d.year >= 2025 ? "dot dot-highlight" : "dot dot-baseline")
       .attr("cx", d => xScale(d.year))
       .attr("cy", d => yScale(d.months))
       .attr("r", 5);
 
   /* ── 9. DIRECT LABELS for 2024 & 2025 ───────────────────── */
   svg.selectAll(".direct-label")
-    .data(data.filter(d => d.year >= 2024))
+    .data(data.filter(d => d.year >= 2025))
     .enter()
     .append("text")
       .attr("class", "direct-label")
@@ -245,7 +246,7 @@ svg.selectAll(".hit-area")
     .attr("class", "chart-headline")
     .attr("x", -margin.left)
     .attr("y", -30)
-    .text("OPT Approval Processing Times Surged 1.5x Over the Last Year");
+    .text("Approval Processing Times Surged 1.5 Times Over the Last Year");
 
 })();
 
@@ -258,4 +259,4 @@ svg.selectAll(".hit-area")
     .html(`<strong>Source:</strong> <a href="https://egov.uscis.gov/processing-times/historic-pt" target="_blank" rel="noopener">U.S. Citizenship and Immigration Services (USCIS)</a>`);
 
   notesGroup.append("p")
-    .text("Note: This category includes all other applications for employment authorization, except those based on Deferred Action for Childhood Arrivals (DACA), a pending asylum application, a pending application for adjustment of status (green card), or parole.");
+    .text("Note: This category includes all other OPT applications, except those based on Deferred Action for Childhood Arrivals (DACA), a pending asylum application, a pending application for adjustment of status (green card), or parole.");
