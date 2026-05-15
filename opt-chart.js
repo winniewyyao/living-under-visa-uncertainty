@@ -1,19 +1,3 @@
-/* ============================================================
-   opt-chart.js — OPT Processing Times Line Chart
-   D3.js v7 | Targets #opt-chart in index.html
-
-   RESPONSIVE CHANGES vs. original
-   ────────────────────────────────
-   • SVG already uses viewBox + preserveAspectRatio, so the
-     chart body scales automatically.
-   • The SVG .chart-headline text was being clipped on narrow
-     screens because it started at x = -margin.left and ran
-     past the right edge. Fix: replaced with a <foreignObject>
-     that wraps a real HTML <div>, giving it word-wrap and a
-     font-size that responds to CSS media queries.
-   • All other internals are unchanged.
-   ============================================================ */
-
 (function () {
 
   /* ── 1. INJECT TOOLTIP CSS ───────────────────────────────── */

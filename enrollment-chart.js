@@ -1,29 +1,3 @@
-/* ============================================================
-   enrollment-chart.js — Annual % Change in New International
-   Student Enrollment in the U.S., 2015–2025
-   D3.js v7 | Targets #enrollment-chart in index.html
-
-   RESPONSIVE CHANGES vs. original
-   ────────────────────────────────
-   • The SVG already uses viewBox + preserveAspectRatio, and
-     the injected CSS already sets `width:100%; height:auto`.
-     Once the container fix in responsive-fixes.css is applied
-     (.chart-container width overridden at ≤768px / ≤480px),
-     the chart fills the screen correctly with no JS changes.
-
-   • HTML .chart-title / .chart-subtitle are standard block
-     elements — they wrap automatically. Font sizes are reduced
-     at narrow breakpoints via responsive-fixes.css.
-
-   • x-axis tick labels can crowd on a 390 px screen (11 years,
-     ~35 px each). A resize observer reduces the tick count to
-     every other year when the container is narrower than 400px,
-     preventing overlap without removing data.
-
-   • Touch support added: touchstart on hit-areas shows the
-     tooltip for mobile users who cannot hover.
-   ============================================================ */
-
 (function () {
 
   /* ── 1. INJECT STYLES ────────────────────────────────────── */

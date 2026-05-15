@@ -1,31 +1,3 @@
-/* ============================================================
-   econ-map.js — U.S. Choropleth Map: International Student
-   Economic Contributions by State
-   D3.js v7 + TopoJSON | Targets #econ-map in index.html
-
-   RESPONSIVE CHANGES vs. original
-   ────────────────────────────────
-   • The SVG map already uses viewBox + preserveAspectRatio
-     and `width: 100% / height: auto`. Combined with the
-     container fix in responsive-fixes.css (chart-container /
-     map-container widths overridden at ≤768px and ≤480px),
-     the map scales correctly at all breakpoints with ZERO
-     JS changes needed.
-
-   • The HTML title/subtitle (.map-title, .map-subtitle) are
-     already HTML <p> elements — they wrap naturally. Font
-     sizes are tweaked via responsive-fixes.css media queries.
-
-   • One JS-side improvement: the legend width is now set in
-     CSS (not hardcoded), and the legend label font-size is
-     slightly bumped so it remains legible when the map is
-     narrow.
-
-   • Touch support: on mobile, mouseover tooltips are
-     unreliable. A touchstart handler is added so users can
-     tap a state to see its value.
-   ============================================================ */
-
 (function () {
 
   /* ── 1. INJECT STYLES ────────────────────────────────────── */
