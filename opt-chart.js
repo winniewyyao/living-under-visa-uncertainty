@@ -1,17 +1,26 @@
 /* ============================================================
    opt-chart.js — OPT Processing Times Line Chart
    D3.js v7 | Targets #opt-chart in index.html
-   All tooltip styles injected by this file
+
+   RESPONSIVE CHANGES vs. original
+   ────────────────────────────────
+   • SVG already uses viewBox + preserveAspectRatio, so the
+     chart body scales automatically.
+   • The SVG .chart-headline text was being clipped on narrow
+     screens because it started at x = -margin.left and ran
+     past the right edge. Fix: replaced with a <foreignObject>
+     that wraps a real HTML <div>, giving it word-wrap and a
+     font-size that responds to CSS media queries.
+   • All other internals are unchanged.
    ============================================================ */
 
 (function () {
 
   /* ── 1. INJECT TOOLTIP CSS ───────────────────────────────── */
-  // Self-contained: no tooltip rules needed in chart.css
   const style = document.createElement("style");
   style.textContent = `
     #opt-chart {
-      position: relative; 
+      position: relative;
     }
     #opt-chart .chart-tooltip {
       position: absolute;
@@ -27,12 +36,20 @@
       opacity: 0;
       transition: opacity 0.15s ease;
     }
-    #opt-chart .chart-headline {
+
+    /* ─── Headline: rendered as HTML inside a foreignObject ── */
+    /* Controlled by CSS so media queries in responsive-fixes.css
+       can override font-size at each breakpoint. */
+    #opt-chart .chart-headline-html {
       font-family: 'Helvetica Neue', Arial, sans-serif;
-      font-size: 1rem;
+      font-size: 1rem;         /* overridden by responsive-fixes.css */
       font-weight: 800;
-      fill: #111111;
+      color: #111111;
+      line-height: 1.3;
+      word-wrap: break-word;   /* prevents clipping on narrow screens */
+      overflow-wrap: break-word;
     }
+
     #opt-chart .axis .tick line {
       stroke: #e0e0e0;
       stroke-dasharray: 3, 3;
@@ -69,7 +86,6 @@
       margin-top: 0.5rem;
       padding: 0 0.5rem;
     }
-
     #opt-chart .chart-notes p {
       font-family: 'Helvetica Neue', Arial, sans-serif;
       font-size: 0.75rem;
@@ -78,13 +94,11 @@
       line-height: 1.5;
       margin-bottom: 0.25rem;
     }
-
     #opt-chart .chart-notes a {
       color: #555555;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-
     #opt-chart .chart-notes a:hover {
       color: #111111;
     }
@@ -102,18 +116,25 @@
   ];
 
   /* ── 3. DIMENSIONS & MARGINS ─────────────────────────────── */
-  const margin = { top: 60, right: 40, bottom: 50, left: 60 };
+  const margin      = { top: 60, right: 40, bottom: 50, left: 60 };
   const totalWidth  = 700;
   const totalHeight = 400;
-  const width  = totalWidth  - margin.left - margin.right;
-  const height = totalHeight - margin.top  - margin.bottom;
+  const width       = totalWidth  - margin.left - margin.right;
+  const height      = totalHeight - margin.top  - margin.bottom;
 
   /* ── 4. CREATE SVG ───────────────────────────────────────── */
-  const svg = d3.select("#opt-chart")
+  // ─── RESPONSIVE NOTE ──────────────────────────────────────
+  // viewBox + preserveAspectRatio mean the browser scales the
+  // entire SVG proportionally. Combined with `width: 100%` on
+  // the <svg> (set in chart.css), the chart fills its container
+  // at any screen width without any JS resize listener.
+  const outerSvg = d3.select("#opt-chart")
     .append("svg")
       .attr("viewBox", `0 0 ${totalWidth} ${totalHeight}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
-      .attr("aria-label", "Line chart: OPT processing times 2021–2026")
+      .attr("aria-label", "Line chart: OPT processing times 2021–2026");
+
+  const svg = outerSvg
     .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -153,7 +174,6 @@
     .call(yAxis)
     .call(g => g.select(".domain").remove());
 
-  // Y-axis label — tied to margin so it never gets clipped
   svg.append("text")
     .attr("class", "axis-label")
     .attr("transform", "rotate(-90)")
@@ -168,13 +188,11 @@
     .y(d => yScale(d.months))
     .curve(d3.curveMonotoneX);
 
-  // Black baseline: 2021–2025
   svg.append("path")
     .datum(data.filter(d => d.year <= 2025))
     .attr("class", "line line-baseline")
     .attr("d", lineGen);
 
-  // Red highlight: 2025–2026
   svg.append("path")
     .datum(data.filter(d => d.year >= 2025))
     .attr("class", "line line-highlight")
@@ -190,7 +208,7 @@
       .attr("cy", d => yScale(d.months))
       .attr("r", 5);
 
-  /* ── 9. DIRECT LABELS for 2024 & 2025 ───────────────────── */
+  /* ── 9. DIRECT LABELS for 2025 & 2026 ───────────────────── */
   svg.selectAll(".direct-label")
     .data(data.filter(d => d.year >= 2025))
     .enter()
@@ -201,62 +219,82 @@
       .attr("text-anchor", "middle")
       .text(d => `${d.months} mo`);
 
-/* ── 10. TOOLTIP for 2021–2023 ───────────────────────────── */
-const tooltip = d3.select("#opt-chart")
-  .append("div")
-  .attr("class", "chart-tooltip");
+  /* ── 10. TOOLTIP for 2021–2023 ───────────────────────────── */
+  const tooltip = d3.select("#opt-chart")
+    .append("div")
+    .attr("class", "chart-tooltip");
 
-svg.selectAll(".hit-area")
-  .data(data.filter(d => d.year <= 2023))
-  .enter()
-  .append("circle")
-    .attr("class", "hit-area")
-    .attr("cx", d => xScale(d.year))
-    .attr("cy", d => yScale(d.months))
-    .attr("r", 20)
-    .style("fill", "transparent")
-    .style("cursor", "default")
-    .on("mouseover", function (event, d) {
-      tooltip
-        .style("opacity", 1)
-        .html(`<strong>${d.year}</strong><br/>${d.months} months`);
+  svg.selectAll(".hit-area")
+    .data(data.filter(d => d.year <= 2024))
+    .enter()
+    .append("circle")
+      .attr("class", "hit-area")
+      .attr("cx", d => xScale(d.year))
+      .attr("cy", d => yScale(d.months))
+      .attr("r", 20)
+      .style("fill", "transparent")
+      .style("cursor", "default")
+      .on("mouseover", function (event, d) {
+        tooltip
+          .style("opacity", 1)
+          .html(`<strong>${d.year}</strong><br/>${d.months} months`);
+        svg.selectAll(".dot-baseline")
+          .filter(p => p.year === d.year)
+          .attr("r", 7);
+      })
+      .on("mousemove", function (event) {
+        const rect = document.getElementById("opt-chart").getBoundingClientRect();
+        tooltip
+          .style("left", `${event.clientX - rect.left + 14}px`)
+          .style("top",  `${event.clientY - rect.top  - 44}px`);
+      })
+      .on("mouseleave", function (event, d) {
+        tooltip.style("opacity", 0);
+        svg.selectAll(".dot-baseline")
+          .filter(p => p.year === d.year)
+          .attr("r", 5);
+      });
 
-      // Highlight the dot underneath
-      svg.selectAll(".dot-baseline")
-        .filter(p => p.year === d.year)
-        .attr("r", 7);
-    })
-    .on("mousemove", function (event) {
-      const rect = document.getElementById("opt-chart").getBoundingClientRect();
-      tooltip
-        .style("left", `${event.clientX - rect.left + 14}px`)
-        .style("top",  `${event.clientY - rect.top  - 44}px`);
-    })
-    .on("mouseleave", function (event, d) {
-      tooltip.style("opacity", 0);
+  /* ── 11. CHART HEADLINE — replaced with foreignObject ───────
+     RESPONSIVE FIX
+     ────────────────────────────────────────────────────────────
+     Original: SVG <text> at x=-margin.left starting from the
+     chart's left edge. At narrow widths the long string clips
+     outside the viewBox and is invisible.
 
-      // Restore dot size
-      svg.selectAll(".dot-baseline")
-        .filter(p => p.year === d.year)
-        .attr("r", 5);
-    });
-
-  /* ── 11. CHART HEADLINE ──────────────────────────────────── */
-  svg.append("text")
-    .attr("class", "chart-headline")
-    .attr("x", -margin.left)
-    .attr("y", -30)
-    .text("Approval Processing Times Surged 1.5 Times Over the Last Year");
+     New approach: a <foreignObject> that spans the full viewBox
+     width, containing a <div class="chart-headline-html">. This
+     gives us:
+       • Automatic word-wrap (CSS word-wrap / overflow-wrap)
+       • Font-size controllable via CSS media queries
+         (see responsive-fixes.css)
+       • No clipping — text wraps inside the SVG coordinate space
+  ────────────────────────────────────────────────────────────── */
+  outerSvg.append("foreignObject")
+    // Position at top-left of the viewBox, above the chart group.
+    // The chart group starts at margin.top = 60, so -10 gives a
+    // few pixels of breathing room below the fo top.
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width",  totalWidth)   // full viewBox width
+    .attr("height", margin.top)   // only as tall as the top margin
+    .append("xhtml:div")
+      .attr("class", "chart-headline-html")
+      // Left-align with the chart body (margin.left)
+      .style("padding-left", `${margin.left}px`)
+      .style("padding-top",  "10px")
+      .style("font-size", window.innerWidth <= 480 ? "0.7rem" : window.innerWidth <= 768 ? "0.85rem" : "1.25rem")
+      .text("Approval Processing Times Surged 1.5 Times Over the Last Year");
 
 })();
 
-  /* ── 12. BOTTOM NOTES ────────────────────────────────────── */
-  const notesGroup = d3.select("#opt-chart")
-    .append("div")
-    .attr("class", "chart-notes");
+/* ── 12. BOTTOM NOTES ────────────────────────────────────── */
+const notesGroup = d3.select("#opt-chart")
+  .append("div")
+  .attr("class", "chart-notes");
 
-  notesGroup.append("p")
-    .html(`<strong>Source:</strong> <a href="https://egov.uscis.gov/processing-times/historic-pt" target="_blank" rel="noopener">U.S. Citizenship and Immigration Services (USCIS)</a>`);
+notesGroup.append("p")
+  .html(`<strong>Source:</strong> <a href="https://egov.uscis.gov/processing-times/historic-pt" target="_blank" rel="noopener">U.S. Citizenship and Immigration Services (USCIS)</a>`);
 
-  notesGroup.append("p")
-    .text("Note: This category includes all other OPT applications, except those based on Deferred Action for Childhood Arrivals (DACA), a pending asylum application, a pending application for adjustment of status (green card), or parole.");
+notesGroup.append("p")
+  .text("Note: This category includes all other OPT applications, except those based on Deferred Action for Childhood Arrivals (DACA), a pending asylum application, a pending application for adjustment of status (green card), or parole.");

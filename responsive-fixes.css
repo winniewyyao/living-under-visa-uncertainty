@@ -1,0 +1,156 @@
+/* ============================================================
+   responsive-fixes.css  — v2
+   Supplementary responsive rules for Living Under Visa Uncertainty
+   Add AFTER style.css and chart.css in your <head>:
+   <link rel="stylesheet" href="responsive-fixes.css">
+   ============================================================ */
+
+
+/* ============================================================
+   1. INTERVIEW IMAGES
+   ─────────────────────────────────────────────────────────────
+   figure.interviewee-photo-fig  — base is width: 40% in
+   style.css. On a narrow phone the figure is fine size-wise,
+   but on tablets it can feel small. More importantly, the v1
+   fix accidentally set it to 70% on tablets, making it LARGER.
+   Correct values below.
+
+   .side-by-side-layout .anonymous-illustration — base style
+   has flex: 0 0 320px (a hard 320 px). On phones narrower
+   than ~380 px this overflows the flex row. Fix: release the
+   hard basis and cap with max-width.
+   ============================================================ */
+
+/* Portrait interview figures (Kai Teoh, Trinity Chiu) */
+@media (max-width: 768px) {
+  figure.interviewee-photo-fig {
+    width: 55%;
+  }
+}
+
+@media (max-width: 480px) {
+  figure.interviewee-photo-fig {
+    width: 55%;
+  }
+}
+
+/* Anonymous illustration figures (Adam, Ariel) inside
+   .side-by-side-layout. The hard flex: 0 0 320px overflows
+   on phones — release it so the image scales with the row. */
+.side-by-side-layout .anonymous-illustration {
+  max-width: 100%;
+}
+
+@media (max-width: 1050px) {
+  .side-by-side-layout .anonymous-illustration {
+    flex: 0 0 auto;
+    width: 35%;
+  }
+}
+
+@media (max-width: 480px) {
+  .side-by-side-layout .anonymous-illustration {
+    flex: 0 0 auto;
+    width: 70%;
+  }
+}
+
+/* All interviewee images must scale inside their containers */
+.anonymous-illustration img,
+figure.interviewee-photo-fig img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+/* ============================================================
+   2. CHART & MAP CONTAINERS
+   ─────────────────────────────────────────────────────────────
+   Root cause in chart.css:
+     .chart-container / .map-container {
+       width: 50vw;
+       left: 50%;
+       transform: translateX(-50%);
+     }
+
+   The positioning arithmetic means the container's left edge
+   starts at 50vw, then shifts left by half its own width
+   (50vw / 2 = 25vw), landing at 25vw from the left. On a
+   390 px phone that means a ~195 px wide box sitting from
+   ~98 px to ~293 px — narrow and not actually centred in the
+   article column.
+
+   To fix: override width AND reset left + transform together.
+   Changing only width without resetting the other two leaves
+   the broken positioning arithmetic in place.
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .chart-container,
+  .map-container {
+    width: 92vw;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-container,
+  .map-container {
+    width: 100%;
+    left: 0;          /* cancel the breakout left: 50% */
+    transform: none;  /* cancel the breakout translateX(-50%) */
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+
+/* ============================================================
+   3. CHART HEADLINE & TITLE FONT SIZES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  #opt-chart .chart-headline-html {
+    font-size: 0.9rem;
+  }
+  #enrollment-chart .chart-title,
+  #econ-map .map-title {
+    font-size: 1rem;
+  }
+  #enrollment-chart .chart-subtitle,
+  #econ-map .map-subtitle {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #opt-chart .chart-headline-html {
+    font-size: 0.88rem;
+  }
+  #enrollment-chart .chart-title,
+  #econ-map .map-title {
+    font-size: 0.88rem;
+  }
+  #enrollment-chart .chart-subtitle,
+  #econ-map .map-subtitle {
+    font-size: 0.7rem;
+  }
+  #opt-chart .axis .tick text,
+  #enrollment-chart .axis .tick text {
+    font-size: 0.65rem;
+  }
+}
+
+/* ============================================================
+   4. FOOTER
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .article-footer p {
+    text-align: center;
+  }
+}

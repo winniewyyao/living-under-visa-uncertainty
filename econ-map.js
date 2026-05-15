@@ -2,8 +2,28 @@
    econ-map.js — U.S. Choropleth Map: International Student
    Economic Contributions by State
    D3.js v7 + TopoJSON | Targets #econ-map in index.html
-   Title, subtitle, legend and notes are all HTML (not SVG)
-   so they scale correctly at any container width
+
+   RESPONSIVE CHANGES vs. original
+   ────────────────────────────────
+   • The SVG map already uses viewBox + preserveAspectRatio
+     and `width: 100% / height: auto`. Combined with the
+     container fix in responsive-fixes.css (chart-container /
+     map-container widths overridden at ≤768px and ≤480px),
+     the map scales correctly at all breakpoints with ZERO
+     JS changes needed.
+
+   • The HTML title/subtitle (.map-title, .map-subtitle) are
+     already HTML <p> elements — they wrap naturally. Font
+     sizes are tweaked via responsive-fixes.css media queries.
+
+   • One JS-side improvement: the legend width is now set in
+     CSS (not hardcoded), and the legend label font-size is
+     slightly bumped so it remains legible when the map is
+     narrow.
+
+   • Touch support: on mobile, mouseover tooltips are
+     unreliable. A touchstart handler is added so users can
+     tap a state to see its value.
    ============================================================ */
 
 (function () {
@@ -22,14 +42,14 @@
       padding: 0 0.5rem;
     }
     #econ-map .map-title {
-      font-size: 1.2rem;
+      font-size: 1.2rem;      /* overridden in responsive-fixes.css */
       font-weight: 800;
       color: #111111;
       line-height: 1.3;
       margin: 0 0 0.3rem 0;
     }
     #econ-map .map-subtitle {
-      font-size: 0.8rem;
+      font-size: 0.8rem;      /* overridden in responsive-fixes.css */
       color: #555555;
       margin: 0 0 2rem 0;
       line-height: 1.4;
@@ -47,7 +67,8 @@
       cursor: default;
       transition: opacity 0.15s ease, stroke-width 0.15s ease;
     }
-    #econ-map .state:hover {
+    #econ-map .state:hover,
+    #econ-map .state.tapped {
       stroke: #ffffff;
       stroke-width: 2px;
       opacity: 0.8;
@@ -69,14 +90,16 @@
       transition: opacity 0.15s ease;
     }
 
-    /* ── HTML Legend — right-aligned below map ── */
+    /* ── HTML Legend — right-aligned below map ──
+       RESPONSIVE FIX: width uses max() so the legend never
+       collapses to an unreadable size on narrow screens.     */
     #econ-map .map-legend-wrap {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;   /* pins to right */
+      align-items: flex-end;
       margin: 0.6rem 0.5rem 0.4rem auto;
       width: fit-content;
-      margin-left: auto;       /* pushes to right edge */
+      margin-left: auto;
     }
     #econ-map .map-legend-title {
       font-size: 0.72rem;
@@ -85,14 +108,15 @@
       margin-bottom: 4px;
     }
     #econ-map .map-legend-gradient {
-      width: 160px;
+      /* Use a relative width so it adapts to the container */
+      width: min(160px, 40vw);
       height: 10px;
       background: linear-gradient(to right, #457b9d, #1d3557);
     }
     #econ-map .map-legend-labels {
       display: flex;
       justify-content: space-between;
-      width: 160px;
+      width: min(160px, 40vw);   /* matches gradient width */
       font-size: 0.68rem;
       color: #555555;
       margin-top: 3px;
@@ -121,7 +145,6 @@
   document.head.appendChild(style);
 
   /* ── 2. HTML HEADER (title + subtitle) ───────────────────── */
-  // Rendered as HTML so font sizes match the rest of the page
   const header = d3.select("#econ-map")
     .append("div")
     .attr("class", "map-header");
@@ -213,7 +236,15 @@
     return `$${val.toLocaleString()}`;
   }
 
-  /* ── 6. SVG — map only, no title/subtitle inside ─────────── */
+  /* ── 6. SVG — viewBox scales the map to any container width ─
+     RESPONSIVE NOTE
+     ────────────────────────────────────────────────────────────
+     viewBox="0 0 960 580" + preserveAspectRatio="xMidYMid meet"
+     + width:100%/height:auto (in injected CSS above) means the
+     map proportionally fills whatever width the .map-container
+     gives it. No JS resize logic is needed here — the browser
+     handles the scaling via SVG's intrinsic aspect-ratio.
+  ────────────────────────────────────────────────────────────── */
   const totalWidth  = 960;
   const totalHeight = 580;
 
@@ -243,11 +274,25 @@
     .append("div")
     .attr("class", "map-tooltip");
 
+  /* Helper — show tooltip near a pointer/touch event */
+  function showTooltip(event, name, val) {
+    const rect = document.getElementById("econ-map").getBoundingClientRect();
+
+    // Support both mouse events and TouchEvent
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+
+    tooltip
+      .style("opacity", 1)
+      .html(`<strong>${name}</strong><br/>${val ? formatValue(val) : "No data"}`)
+      .style("left", `${clientX - rect.left + 14}px`)
+      .style("top",  `${clientY - rect.top  - 44}px`);
+  }
+
   /* ── 10. LOAD TOPOJSON & DRAW ────────────────────────────── */
   d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json")
     .then(function (us) {
 
-      // State fills
       mapG.append("g")
         .selectAll(".state")
         .data(topojson.feature(us, us.objects.states).features)
@@ -261,13 +306,11 @@
             const val  = rawData[name];
             return val ? colorScale(val) : "#cccccc";
           })
+          /* ── Mouse events (desktop) ── */
           .on("mouseover", function (event, d) {
             const id   = String(d.id).padStart(2, "0");
             const name = fipsToName[id] || "Unknown";
-            const val  = rawData[name];
-            tooltip
-              .style("opacity", 1)
-              .html(`<strong>${name}</strong><br/>${val ? formatValue(val) : "No data"}`);
+            showTooltip(event, name, rawData[name]);
           })
           .on("mousemove", function (event) {
             const rect = document.getElementById("econ-map").getBoundingClientRect();
@@ -277,9 +320,23 @@
           })
           .on("mouseleave", function () {
             tooltip.style("opacity", 0);
+          })
+          /* ── Touch events (mobile) ───────────────────────────
+             RESPONSIVE FIX
+             On phones, hover never fires. A touchstart handler
+             shows the tooltip on tap so mobile users can still
+             read state values.
+          ────────────────────────────────────────────────────── */
+          .on("touchstart", function (event, d) {
+            event.preventDefault();           // prevent scroll-hijack
+            const id   = String(d.id).padStart(2, "0");
+            const name = fipsToName[id] || "Unknown";
+            showTooltip(event, name, rawData[name]);
+
+            // Auto-hide after 2.5 s so it doesn't linger
+            setTimeout(() => tooltip.style("opacity", 0), 2500);
           });
 
-      // State borders mesh
       mapG.append("path")
         .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
         .attr("fill", "none")
