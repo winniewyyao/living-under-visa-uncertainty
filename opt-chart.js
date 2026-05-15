@@ -219,7 +219,7 @@
       .attr("text-anchor", "middle")
       .text(d => `${d.months} mo`);
 
-  /* ── 10. TOOLTIP for 2021–2023 ───────────────────────────── */
+  /* ── 10. TOOLTIP for 2021–2024 ───────────────────────────── */
   const tooltip = d3.select("#opt-chart")
     .append("div")
     .attr("class", "chart-tooltip");
